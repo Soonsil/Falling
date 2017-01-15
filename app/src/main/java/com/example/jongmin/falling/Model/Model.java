@@ -16,44 +16,40 @@ import java.nio.FloatBuffer;
 
 public class Model {
 
-    private int mProgram;
-    private FloatBuffer mVertexBuffer;
-    private FloatBuffer mNormalBuffer;
-    private FloatBuffer mTextureCoorBuffer;
+    protected int mProgram;
+    protected FloatBuffer mVertexBuffer;
+    protected FloatBuffer mNormalBuffer;
+    protected FloatBuffer mTextureCoorBuffer;
 
     // attribute handles
-    private int mPositionHandle;
-    private int mNormalHandle;
-    private int mTextureHandle;
-    private int mTextureCoorHandle;
+    protected int mPositionHandle;
+    protected int mNormalHandle;
 
     // uniform handles
-    private int mProjMatrixHandle;
-    private int mModelViewMatrixHandle;
-    private int mNormalMatrixHandle;
+    protected int mProjMatrixHandle;
+    protected int mModelViewMatrixHandle;
+    protected int mNormalMatrixHandle;
 
-    private int mLightHandle;
-    private int mColorHandle;
+    protected int mLightHandle;
+    protected int mColorHandle;
 
-    private static final int COORDS_PER_VERTEX = 3;
-    private static final int VERTEX_STRIDE = COORDS_PER_VERTEX * 4;
+    protected static final int COORDS_PER_VERTEX = 3;
+    protected static final int VERTEX_STRIDE = COORDS_PER_VERTEX * 4;
 
     protected float color[] = new float[]{0.0f, 1.0f, 0.0f};
     protected float vertices[];
     protected float normals[];
-    protected float textureCoords[];
 
-    private float modelMatrix[] = new float[16];
-    private float normalMatrix[] = new float[16];
+    protected float modelMatrix[] = new float[16];
+    protected float normalMatrix[] = new float[16];
 
-    private String vshader = "basic-gl2-vshader.glsl";
-    private String fshader = "basic-gl2-fshader.glsl";
-    private MyGLRenderer mRenderer;
+    protected String vshader = "basic-gl2-vshader.glsl";
+    protected String fshader = "basic-gl2-fshader.glsl";
+    protected MyGLRenderer mRenderer;
 
-    private int drawtype = GLES20.GL_TRIANGLES;
+    protected int drawtype = GLES20.GL_TRIANGLES;
 
-    private  int useNormal = 0;
-    private  int useTexture = 0;
+    protected  int useNormal = 0;
 
     public Model(MyGLRenderer mRenderer){
         Matrix.setIdentityM(modelMatrix, 0);
@@ -63,9 +59,6 @@ public class Model {
 
     public void setUseNormal(int useNormal){
         this.useNormal = useNormal;
-    }
-    public void setUseTexture(int useTexture){
-        this.useTexture = useTexture;
     }
 
     public void setVertices(float[] vertices){
@@ -80,12 +73,7 @@ public class Model {
         }
     }
 
-    public void setTextureCoords(float[] textureCoords){
-        if(useTexture == 1) {
-            this.textureCoords = new float[textureCoords.length];
-            System.arraycopy(textureCoords, 0, this.textureCoords, 0, textureCoords.length);
-        }
-    }
+
     public void setMatrix(float[] mat){
         System.arraycopy(mat, 0, modelMatrix, 0, 16);
     }
@@ -124,13 +112,7 @@ public class Model {
             mNormalBuffer.put(normals);
             mNormalBuffer.position(0);
         }
-        if(useTexture == 1){
-            byteBuf = ByteBuffer.allocateDirect(textureCoords.length * 4);
-            byteBuf.order(ByteOrder.nativeOrder());
-            mTextureCoorBuffer = byteBuf.asFloatBuffer();
-            mTextureCoorBuffer.put(textureCoords);
-            mTextureCoorBuffer.position(0);
-        }
+
     }
 
     public void makeShader(){
@@ -146,16 +128,6 @@ public class Model {
         GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
         GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
 
-
-        if(useTexture == 1) {
-            int[] textureHandles = new int[1];
-            GLES20.glGenTextures(1, textureHandles, 0);
-            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandles[0]);
-            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, mRenderer.loadImage("brick.png"), 0);
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-        }
     }
 
 
@@ -193,17 +165,6 @@ public class Model {
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
         mNormalHandle = GLES20.glGetAttribLocation(mProgram, "aNormal");
 
-        if(useTexture == 1) {
-            mTextureHandle = GLES20.glGetUniformLocation(mProgram, "uTextureUnit");
-            mTextureCoorHandle = GLES20.glGetAttribLocation(mProgram, "aTextureCoord");
-            GLES20.glEnableVertexAttribArray(mTextureCoorHandle);
-            GLES20.glVertexAttribPointer(
-                    mTextureCoorHandle, COORDS_PER_VERTEX,
-                    GLES20.GL_FLOAT, false,
-                    VERTEX_STRIDE, mTextureCoorBuffer
-            );
-        }
-
         GLES20.glEnableVertexAttribArray(mPositionHandle);
 
         GLES20.glVertexAttribPointer(
@@ -221,8 +182,6 @@ public class Model {
         if(useNormal == 1) {
             GLES20.glDisableVertexAttribArray(mNormalHandle);
         }
-        if(useTexture == 1) {
-            GLES20.glDisableVertexAttribArray(mTextureHandle);
-        }
+
     }
 }
