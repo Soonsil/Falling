@@ -15,6 +15,7 @@ public class GameEnv {
     public static ArrayList<Point> points;
 
     public static Vector2D gravity;
+    public static float dt;
 
     public static GameEnv getInstance() {
         return ourInstance;
@@ -23,6 +24,7 @@ public class GameEnv {
     private GameEnv() {
         newflag = 0;
         points = new ArrayList<Point>();
-        gravity = new Vector2D(0.0f, -0.5f);
+        gravity = new Vector2D(0.0f, -0.02f);
+        dt = 0.5f;
     }
 }

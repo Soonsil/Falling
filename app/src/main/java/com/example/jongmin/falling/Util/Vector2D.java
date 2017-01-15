@@ -1,5 +1,7 @@
 package com.example.jongmin.falling.Util;
 
+import java.util.Locale;
+
 /**
  * Created by avantgarde on 2017-01-15.
  */
@@ -29,6 +31,10 @@ public class Vector2D {
     public void add(Vector2D vec) {
         x += vec.x;
         y += vec.y;
+    }
+
+    public String toString() {
+        return String.format(Locale.US, "(%.3f, %.3f)", x, y);
     }
 
     // -------------------------------------------------------------

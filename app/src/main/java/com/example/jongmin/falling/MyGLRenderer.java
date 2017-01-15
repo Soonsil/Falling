@@ -80,8 +80,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         mBallBody = new Body2D(
                 3.0f,                        // mass
                 (3.0f * 0.2f * 0.2f) / 4.0f, // moment of inertia (circle : mr^2 / 4)
-                0.0f,                        // posX
-                0.0f                         // posY
+                -0.4f,                        // posX
+                0.2f                         // posY
         );
 
         // INITIALIZE LIGHTS
@@ -116,6 +116,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         // Physics
         mBallBody.applyForce(GameEnv.gravity);
+        mBallBody.integrateVelocity(0.5f);
+        mBallBody.clear();
 
         float[] tempMatrix = new float[16];
         Matrix.setIdentityM(tempMatrix, 0);

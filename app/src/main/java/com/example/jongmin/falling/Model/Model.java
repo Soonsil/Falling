@@ -2,6 +2,7 @@ package com.example.jongmin.falling.Model;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import com.example.jongmin.falling.MyGLRenderer;
 import com.example.jongmin.falling.Util.MatOperator;
@@ -119,7 +120,6 @@ public class Model {
 
     public void draw(float[] projMatrix,
                      float[] viewMatrix) {
-
         GLES20.glUseProgram(mProgram);
         float[] modelViewMatrix = new float[16];
         Matrix.multiplyMM(modelViewMatrix, 0, viewMatrix, 0, modelMatrix, 0);
