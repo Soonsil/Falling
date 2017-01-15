@@ -14,6 +14,9 @@ public class Square extends Model {
         setVertices(GeometrySet.squareVertices);
         setNormals(GeometrySet.squareNormals);
         setDrawType(GLES20.GL_TRIANGLES);
+        setUseTexture(1);
+        setTextureCoords(GeometrySet.squaretextureCoords);
+        setShader("texture-gl2-vshader.glsl", "texture-gl2-fshader.glsl");
 //        setDrawType(GLES20.GL_LINE_STRIP);
         setColor(new float[]{1.0f, 0.0f, 1.0f});
         make();

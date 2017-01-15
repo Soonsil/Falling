@@ -1,6 +1,7 @@
 package com.example.jongmin.falling.Model;
 
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 
 import com.example.jongmin.falling.MyGLRenderer;
@@ -18,10 +19,13 @@ public class Model {
     private int mProgram;
     private FloatBuffer mVertexBuffer;
     private FloatBuffer mNormalBuffer;
+    private FloatBuffer mTextureCoorBuffer;
 
     // attribute handles
     private int mPositionHandle;
     private int mNormalHandle;
+    private int mTextureHandle;
+    private int mTextureCoorHandle;
 
     // uniform handles
     private int mProjMatrixHandle;
@@ -37,7 +41,7 @@ public class Model {
     protected float color[] = new float[]{0.0f, 1.0f, 0.0f};
     protected float vertices[];
     protected float normals[];
-    protected float textures[];
+    protected float textureCoords[];
 
     private float modelMatrix[] = new float[16];
     private float normalMatrix[] = new float[16];
@@ -48,10 +52,20 @@ public class Model {
 
     private int drawtype = GLES20.GL_TRIANGLES;
 
+    private  int useNormal = 0;
+    private  int useTexture = 0;
+
     public Model(MyGLRenderer mRenderer){
         Matrix.setIdentityM(modelMatrix, 0);
         Matrix.setIdentityM(normalMatrix, 0);
         this.mRenderer = mRenderer;
+    }
+
+    public void setUseNormal(int useNormal){
+        this.useNormal = useNormal;
+    }
+    public void setUseTexture(int useTexture){
+        this.useTexture = useTexture;
     }
 
     public void setVertices(float[] vertices){
@@ -60,10 +74,18 @@ public class Model {
     }
 
     public void setNormals(float[] normals){
-        this.normals = new float[normals.length];
-        System.arraycopy(normals, 0, this.normals, 0, normals.length);
+        if(useNormal == 1) {
+            this.normals = new float[normals.length];
+            System.arraycopy(normals, 0, this.normals, 0, normals.length);
+        }
     }
 
+    public void setTextureCoords(float[] textureCoords){
+        if(useTexture == 1) {
+            this.textureCoords = new float[textureCoords.length];
+            System.arraycopy(textureCoords, 0, this.textureCoords, 0, textureCoords.length);
+        }
+    }
     public void setMatrix(float[] mat){
         System.arraycopy(mat, 0, modelMatrix, 0, 16);
     }
@@ -91,16 +113,24 @@ public class Model {
     public void makeBuffer(){
         ByteBuffer byteBuf = ByteBuffer.allocateDirect(vertices.length * 4);
         byteBuf.order(ByteOrder.nativeOrder());
-        System.out.println("make " + vertices.length + " " + normals.length);
         mVertexBuffer = byteBuf.asFloatBuffer();
         mVertexBuffer.put(vertices);
         mVertexBuffer.position(0);
 
-        byteBuf = ByteBuffer.allocateDirect(normals.length * 4);
-        byteBuf.order(ByteOrder.nativeOrder());
-        mNormalBuffer = byteBuf.asFloatBuffer();
-        mNormalBuffer.put(normals);
-        mNormalBuffer.position(0);
+        if(useNormal == 1) {
+            byteBuf = ByteBuffer.allocateDirect(normals.length * 4);
+            byteBuf.order(ByteOrder.nativeOrder());
+            mNormalBuffer = byteBuf.asFloatBuffer();
+            mNormalBuffer.put(normals);
+            mNormalBuffer.position(0);
+        }
+        if(useTexture == 1){
+            byteBuf = ByteBuffer.allocateDirect(textureCoords.length * 4);
+            byteBuf.order(ByteOrder.nativeOrder());
+            mTextureCoorBuffer = byteBuf.asFloatBuffer();
+            mTextureCoorBuffer.put(textureCoords);
+            mTextureCoorBuffer.position(0);
+        }
     }
 
     public void makeShader(){
@@ -115,6 +145,17 @@ public class Model {
         GLES20.glAttachShader(mProgram, vertexShader);   // add the vertex shader to program
         GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
         GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
+
+
+        if(useTexture == 1) {
+            int[] textureHandles = new int[1];
+            GLES20.glGenTextures(1, textureHandles, 0);
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandles[0]);
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, mRenderer.loadImage("brick.png"), 0);
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+            GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+        }
     }
 
 
@@ -129,14 +170,22 @@ public class Model {
         // uniforms
         mProjMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uProjMatrix");
         mModelViewMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uModelViewMatrix");
-        mNormalMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uNormalMatrix");
         mColorHandle = GLES20.glGetUniformLocation(mProgram, "uColor");
+
         //mLightHandle = GLES20.glGetUniformLocation(mProgram, "uLight");
 
         GLES20.glUniformMatrix4fv(mProjMatrixHandle, 1, false, projMatrix, 0);
         GLES20.glUniformMatrix4fv(mModelViewMatrixHandle, 1, false, modelViewMatrix, 0);
-        GLES20.glUniformMatrix4fv(mNormalMatrixHandle, 1, false, normalMatrix, 0);
 
+        if(useNormal == 1) {
+            mNormalMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uNormalMatrix");
+            GLES20.glUniformMatrix4fv(mNormalMatrixHandle, 1, false, normalMatrix, 0);
+            GLES20.glEnableVertexAttribArray(mNormalHandle);
+            GLES20.glVertexAttribPointer(
+                    mNormalHandle, COORDS_PER_VERTEX,
+                    GLES20.GL_FLOAT, false,
+                    VERTEX_STRIDE, mNormalBuffer);
+        }
         GLES20.glUniform3fv(mColorHandle, 1, color, 0);
 //        GLES20.glUniform3fv(mLightHandle, 1, light, 0);
 
@@ -144,24 +193,36 @@ public class Model {
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
         mNormalHandle = GLES20.glGetAttribLocation(mProgram, "aNormal");
 
+        if(useTexture == 1) {
+            mTextureHandle = GLES20.glGetUniformLocation(mProgram, "uTextureUnit");
+            mTextureCoorHandle = GLES20.glGetAttribLocation(mProgram, "aTextureCoord");
+            GLES20.glEnableVertexAttribArray(mTextureCoorHandle);
+            GLES20.glVertexAttribPointer(
+                    mTextureCoorHandle, COORDS_PER_VERTEX,
+                    GLES20.GL_FLOAT, false,
+                    VERTEX_STRIDE, mTextureCoorBuffer
+            );
+        }
+
         GLES20.glEnableVertexAttribArray(mPositionHandle);
-        GLES20.glEnableVertexAttribArray(mNormalHandle);
 
         GLES20.glVertexAttribPointer(
                 mPositionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 VERTEX_STRIDE, mVertexBuffer);
 
-        GLES20.glVertexAttribPointer(
-                mNormalHandle, COORDS_PER_VERTEX,
-                GLES20.GL_FLOAT, false,
-                VERTEX_STRIDE, mNormalBuffer);
+
 
         System.out.println(drawtype + " " + vertices.length);
         // Draw the cube
         GLES20.glDrawArrays(drawtype, 0, vertices.length / 3);
 
         GLES20.glDisableVertexAttribArray(mPositionHandle);
-//        GLES20.glDisableVertexAttribArray(mNormalHandle);
+        if(useNormal == 1) {
+            GLES20.glDisableVertexAttribArray(mNormalHandle);
+        }
+        if(useTexture == 1) {
+            GLES20.glDisableVertexAttribArray(mTextureHandle);
+        }
     }
 }

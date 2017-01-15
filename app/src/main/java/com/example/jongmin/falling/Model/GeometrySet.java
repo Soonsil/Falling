@@ -123,6 +123,14 @@ public class GeometrySet {
             0.0f, 0.0f, 1.0f,
             0.0f, 0.0f, 1.0f
     };
+    public static float squaretextureCoords[] = {
+            0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f,
+            1.0f, 1.0f, 0.0f
+    };
 
 
 }
