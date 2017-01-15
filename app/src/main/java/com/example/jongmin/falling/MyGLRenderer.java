@@ -58,6 +58,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private ArrayList<Model> mModels;
     private int flag = 0;
+
     @Override
     // CALLED WHEN SURFACE IS CREATED AT FIRST.
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -90,7 +91,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 unused) {
         GLES20.glLineWidth(10.0f);
-        if(GameEnv.newflag == 1){
+        if (GameEnv.newflag == 1) {
             Model m = new Model();
             m.makeShader();
             makeNewModelByTouch(m);
@@ -120,7 +121,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 //            m.draw(mProjMatrix, mViewMatrix);
 //        }
 
-        for(Model m : mModels){
+        for (Model m : mModels) {
             m.draw(mProjMatrix, mViewMatrix);
         }
     }
@@ -137,8 +138,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         System.out.println(width + " " + height);
         final float left = -1;
         final float right = 1;
-        final float bottom = -1.0f/ratio;
-        final float top = 1.0f/ratio;
+        final float bottom = -1.0f / ratio;
+        final float top = 1.0f / ratio;
         final float near = 1.0f;
         final float far = 100.0f;
 
@@ -246,20 +247,21 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             throw new RuntimeException(glOperation + ": glError " + error);
         }
     }
-    public void setActivity(MainActivity activity){
+
+    public void setActivity(MainActivity activity) {
         this.activity = activity;
     }
 
-    public void makeNewModelByTouch(Model m){
+    public void makeNewModelByTouch(Model m) {
         float[] vertices = new float[GameEnv.points.size() * 3];
         float[] normals = new float[GameEnv.points.size() * 3];
 
         int idx = 0;
-        float ratio = (float) width/height;
+        float ratio = (float) width / height;
         System.out.println(ratio);
-        while (idx != GameEnv.points.size()){
-            vertices[idx * 3] = ((GameEnv.points.get(idx).x/width) * 2.0f - 1.0f);
-            vertices[idx * 3 + 1] = -((GameEnv.points.get(idx).y/height) * 2.0f - 1.0f)/ratio;
+        while (idx != GameEnv.points.size()) {
+            vertices[idx * 3] = ((GameEnv.points.get(idx).x / width) * 2.0f - 1.0f);
+            vertices[idx * 3 + 1] = -((GameEnv.points.get(idx).y / height) * 2.0f - 1.0f) / ratio;
             vertices[idx * 3 + 2] = 0.0f;
             //System.out.println(points.get(idx).x/width + " " + points.get(idx).y/height);
 //            System.out.println((idx * 3 + 2)+ " " + vertices.length);
@@ -279,8 +281,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         mModels.add(m);
 
-        
-        
+
 //        line.setVertices(GeometrySet.cubeVertices);
 //        line.setNormals(GeometrySet.cubeNormals);
 //        line.setDrawType(GLES20.GL_LINE_STRIP);

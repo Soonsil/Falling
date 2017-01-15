@@ -7,7 +7,7 @@ import android.opengl.GLES20;
  */
 
 public class Cube extends Model {
-    public Cube(){
+    public Cube() {
         super();
         setVertices(GeometrySet.cubeVertices);
         setNormals(GeometrySet.cubeNormals);

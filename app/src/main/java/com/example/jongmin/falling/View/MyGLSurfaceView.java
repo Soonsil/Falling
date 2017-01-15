@@ -77,12 +77,11 @@ public class MyGLSurfaceView extends GLSurfaceView {
                 GameEnv.points = points;
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (count == 1){
+                if (count == 1) {
                     Point p = new Point(e.getX(), e.getY());
 //                    System.out.println(e.getX() + " " + e.getY());
                     points.add(p);
-                }
-                else if (count == 2){
+                } else if (count == 2) {
                     float[] rot = new float[16];
 
                     Matrix.setIdentityM(rot, 0);
@@ -101,7 +100,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
         requestRender();
         return true;
     }
-    public void setActivity(MainActivity activity){
+
+    public void setActivity(MainActivity activity) {
         this.activity = activity;
         this.mRenderer.setActivity(activity);
     }

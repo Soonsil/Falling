@@ -48,46 +48,46 @@ public class Model {
 
     private int drawtype = GLES20.GL_TRIANGLES;
 
-    public Model(){
+    public Model() {
         Matrix.setIdentityM(modelMatrix, 0);
         Matrix.setIdentityM(normalMatrix, 0);
     }
 
-    public void setVertices(float[] vertices){
+    public void setVertices(float[] vertices) {
         this.vertices = new float[vertices.length];
         System.arraycopy(vertices, 0, this.vertices, 0, vertices.length);
     }
 
-    public void setNormals(float[] normals){
+    public void setNormals(float[] normals) {
         this.normals = new float[normals.length];
         System.arraycopy(normals, 0, this.normals, 0, normals.length);
     }
 
-    public void setMatrix(float[] mat){
+    public void setMatrix(float[] mat) {
         System.arraycopy(mat, 0, modelMatrix, 0, 16);
     }
 
-    public void setShader(String vshader, String fshader){
+    public void setShader(String vshader, String fshader) {
         this.vshader = vshader;
         this.fshader = fshader;
     }
 
-    public void setDrawType(int drawtype){
+    public void setDrawType(int drawtype) {
         this.drawtype = drawtype;
     }
 
-    public void setColor(float[] color){
+    public void setColor(float[] color) {
         this.color[0] = color[0];
         this.color[1] = color[1];
         this.color[2] = color[2];
     }
 
-    public void make(){
+    public void make() {
         makeBuffer();
         makeShader();
     }
 
-    public void makeBuffer(){
+    public void makeBuffer() {
         ByteBuffer byteBuf = ByteBuffer.allocateDirect(vertices.length * 4);
         byteBuf.order(ByteOrder.nativeOrder());
         System.out.println("make " + vertices.length + " " + normals.length);
@@ -102,7 +102,7 @@ public class Model {
         mNormalBuffer.position(0);
     }
 
-    public void makeShader(){
+    public void makeShader() {
         // prepare shaders and OpenGL program
         int vertexShader = MyGLRenderer.loadShaderFromFile(
                 GLES20.GL_VERTEX_SHADER, vshader);
@@ -110,7 +110,7 @@ public class Model {
                 GLES20.GL_FRAGMENT_SHADER, fshader);
 
         mProgram = GLES20.glCreateProgram();             // create empty OpenGL Program
-        System.out.println("program " + mProgram +" " +vertexShader +" " + fragmentShader);
+        System.out.println("program " + mProgram + " " + vertexShader + " " + fragmentShader);
         GLES20.glAttachShader(mProgram, vertexShader);   // add the vertex shader to program
         GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
         GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
