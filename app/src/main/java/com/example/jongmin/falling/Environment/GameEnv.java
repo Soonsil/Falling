@@ -12,6 +12,7 @@ public class GameEnv {
 
     public static int newflag;
     public static ArrayList<Point> points;
+    public static long starttime;
 
     public static GameEnv getInstance() {
         return ourInstance;
@@ -20,5 +21,6 @@ public class GameEnv {
     private GameEnv() {
         newflag = 0;
         points = new ArrayList<Point>();
+        starttime = 0;
     }
 }

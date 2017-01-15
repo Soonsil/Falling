@@ -3,9 +3,10 @@ package com.example.jongmin.falling.View;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-import com.example.jongmin.falling.Acitivities.MainActivity;
+import com.example.jongmin.falling.Activities.MainActivity;
 import com.example.jongmin.falling.Environment.GameEnv;
 import com.example.jongmin.falling.Model.Point;
 import com.example.jongmin.falling.MyGLRenderer;
@@ -45,8 +46,18 @@ public class MyGLSurfaceView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
     }
+    public MyGLSurfaceView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        // Create an OpenGL ES 2.0 context.
+        setEGLContextClientVersion(2);
 
+        // Set the Renderer for drawing on the GLSurfaceView
+        mRenderer = new MyGLRenderer();
+        setRenderer(mRenderer);
 
+        // Render the view only when there is a change in the drawing data
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+    }
     @Override
     public boolean onTouchEvent(MotionEvent e) {
         // MotionEvent reports input details from the touch screen

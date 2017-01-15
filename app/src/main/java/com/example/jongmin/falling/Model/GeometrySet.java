@@ -105,4 +105,24 @@ public class GeometrySet {
             0.0f, -1.0f, 0.0f,
             0.0f, -1.0f, 0.0f
     };
+
+    public static float squareVertices[] = {
+            -1.0f, 1.0f, 0.0f,
+            -1.0f, -1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            -1.0f, -1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f
+    };
+
+    public static float squareNormals[] = {
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f
+    };
+
+
 }

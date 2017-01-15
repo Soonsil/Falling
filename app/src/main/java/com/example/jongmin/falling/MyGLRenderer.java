@@ -7,17 +7,14 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.Log;
 
-import com.example.jongmin.falling.Acitivities.MainActivity;
+import com.example.jongmin.falling.Activities.MainActivity;
 import com.example.jongmin.falling.Environment.GameEnv;
-import com.example.jongmin.falling.Model.Cube;
-import com.example.jongmin.falling.Model.GeometrySet;
 import com.example.jongmin.falling.Model.Model;
-import com.example.jongmin.falling.Model.Point;
-import com.example.jongmin.falling.Util.Debug;
-import com.example.jongmin.falling.Util.MatOperator;
+import com.example.jongmin.falling.Model.Square;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -26,7 +23,6 @@ import java.util.Arrays;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
-
 
 /**
  * Created by sjjeon on 16. 9. 20.
@@ -57,6 +53,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private MainActivity activity;
 
     private ArrayList<Model> mModels;
+    private Model mSquare;
     private int flag = 0;
     @Override
     // CALLED WHEN SURFACE IS CREATED AT FIRST.
@@ -76,6 +73,27 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 //        mCube.make();
         mModels = new ArrayList<Model>();
 
+        File file = activity.getFileStreamPath("squares.txt");
+        if( file.isFile() == false ) {
+            String strBuf = ReadTextAssets("squares.txt");
+            System.out.println("here " + strBuf);
+
+            String[] array;
+            array =  strBuf.split("\n");
+            System.out.println(array);
+            for(int i=1; i<array.length; i++){
+                String[] arr = array[i].split(" ");
+                Model square = new Square(this);
+                Matrix.setIdentityM(mTempMatrix, 0);
+                Matrix.translateM(mTempMatrix, 0 , Float.parseFloat(arr[0]), Float.parseFloat(arr[1]),0.0f);
+                Matrix.scaleM(mTempMatrix, 0, Float.parseFloat(arr[2]), Float.parseFloat(arr[3]), 0.0f);
+                square.setMatrix(mTempMatrix);
+                mModels.add(square);
+            }
+        }
+
+
+
         // INITIALIZE LIGHTS
         mLight = new float[]{2.0f, 3.0f, 14.0f};
         mLight2 = new float[]{-2.0f, -3.0f, -5.0f};
@@ -83,19 +101,22 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // INIT VIEW MATRIX
         Matrix.setIdentityM(mViewRotationMatrix, 0);
         Matrix.setIdentityM(mViewTranslationMatrix, 0);
-        Matrix.translateM(mViewTranslationMatrix, 0, 0, 0, -1.0001f);
+        Matrix.translateM(mViewTranslationMatrix, 0, 0, 0, -1.001f);
+        GameEnv.starttime = System.currentTimeMillis();
 
     }
 
     @Override
     public void onDrawFrame(GL10 unused) {
         GLES20.glLineWidth(10.0f);
+
         if(GameEnv.newflag == 1){
-            Model m = new Model();
+            Model m = new Model(this);
             m.makeShader();
             makeNewModelByTouch(m);
             GameEnv.newflag = 0;
         }
+
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
@@ -123,6 +144,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         for(Model m : mModels){
             m.draw(mProjMatrix, mViewMatrix);
         }
+//        activity.update();
     }
 
     @Override
@@ -140,7 +162,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         final float bottom = -1.0f/ratio;
         final float top = 1.0f/ratio;
         final float near = 1.0f;
-        final float far = 100.0f;
+        final float far = 400.0f;
 
         Matrix.frustumM(mProjMatrix, 0, left, right, bottom, top, near, far);
     }
@@ -204,18 +226,18 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         return loadShader(type, shaderCode);
     }
 
-    public static int loadShaderFromFile(int type, String fileName) {
+    public int loadShaderFromFile(int type, String fileName) {
         try {
-            return loadShader(type, MainActivity.context.getAssets().open(fileName));
+            return loadShader(type, activity.getAssets().open(fileName));
         } catch (IOException e) {
             e.printStackTrace();
         }
         return -1;
     }
 
-    public static Bitmap loadImage(String fileName) {
+    public Bitmap loadImage(String fileName) {
         try {
-            Bitmap tmp = BitmapFactory.decodeStream(MainActivity.context.getAssets().open(fileName));
+            Bitmap tmp = BitmapFactory.decodeStream(activity.getAssets().open(fileName));
             android.graphics.Matrix matrix = new android.graphics.Matrix();
             matrix.preScale(1.0f, -1.0f);
             Bitmap image = Bitmap.createBitmap(tmp, 0, 0, tmp.getWidth(), tmp.getHeight(), matrix, true);
@@ -273,22 +295,28 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         m.setNormals(normals);
         m.setDrawType(GLES20.GL_LINE_STRIP);
         m.setColor(new float[]{1.0f, 0.0f, 0.0f});
-//        Debug.printArr(vertices);
-//        Debug.printArr(normals);
         m.makeBuffer();
 
         mModels.add(m);
 
-        
-        
-//        line.setVertices(GeometrySet.cubeVertices);
-//        line.setNormals(GeometrySet.cubeNormals);
-//        line.setDrawType(GLES20.GL_LINE_STRIP);
-//        line.setColor(new float[]{1.0f, 0.0f, 0.0f});
-////        Debug.printArr(vertices);
-////        Debug.printArr(normals);
-//        line.make();
-//        mModels.add(line);
+
     }
+    public String ReadTextAssets(String fileName) {
+        String text = null;
+        try {
+            InputStream is = activity.getAssets().open(fileName);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+
+            text = new String(buffer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return text;
+    }
+
 
 }

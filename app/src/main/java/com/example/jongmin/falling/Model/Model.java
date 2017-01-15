@@ -4,7 +4,6 @@ import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 import com.example.jongmin.falling.MyGLRenderer;
-import com.example.jongmin.falling.Util.MatOperator;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -45,12 +44,14 @@ public class Model {
 
     private String vshader = "basic-gl2-vshader.glsl";
     private String fshader = "basic-gl2-fshader.glsl";
+    private MyGLRenderer mRenderer;
 
     private int drawtype = GLES20.GL_TRIANGLES;
 
-    public Model(){
+    public Model(MyGLRenderer mRenderer){
         Matrix.setIdentityM(modelMatrix, 0);
         Matrix.setIdentityM(normalMatrix, 0);
+        this.mRenderer = mRenderer;
     }
 
     public void setVertices(float[] vertices){
@@ -104,9 +105,9 @@ public class Model {
 
     public void makeShader(){
         // prepare shaders and OpenGL program
-        int vertexShader = MyGLRenderer.loadShaderFromFile(
+        int vertexShader = mRenderer.loadShaderFromFile(
                 GLES20.GL_VERTEX_SHADER, vshader);
-        int fragmentShader = MyGLRenderer.loadShaderFromFile(
+        int fragmentShader = mRenderer.loadShaderFromFile(
                 GLES20.GL_FRAGMENT_SHADER, fshader);
 
         mProgram = GLES20.glCreateProgram();             // create empty OpenGL Program

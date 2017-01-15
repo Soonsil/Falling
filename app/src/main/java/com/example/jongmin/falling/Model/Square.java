@@ -8,13 +8,14 @@ import com.example.jongmin.falling.MyGLRenderer;
  * Created by Jongmin on 2017-01-08.
  */
 
-public class Cube extends Model {
-    public Cube(MyGLRenderer mRenderer){
+public class Square extends Model {
+    public Square(MyGLRenderer mRenderer){
         super(mRenderer);
-        setVertices(GeometrySet.cubeVertices);
-        setNormals(GeometrySet.cubeNormals);
+        setVertices(GeometrySet.squareVertices);
+        setNormals(GeometrySet.squareNormals);
         setDrawType(GLES20.GL_TRIANGLES);
-        setColor(new float[]{0.0f, 0.0f, 1.0f});
+//        setDrawType(GLES20.GL_LINE_STRIP);
+        setColor(new float[]{1.0f, 0.0f, 1.0f});
         make();
     }
 }
