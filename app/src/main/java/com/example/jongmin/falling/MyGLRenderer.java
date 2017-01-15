@@ -9,10 +9,12 @@ import android.util.Log;
 
 import com.example.jongmin.falling.Acitivities.MainActivity;
 import com.example.jongmin.falling.Environment.GameEnv;
+import com.example.jongmin.falling.Model.Circle;
 import com.example.jongmin.falling.Model.Cube;
 import com.example.jongmin.falling.Model.GeometrySet;
 import com.example.jongmin.falling.Model.Model;
 import com.example.jongmin.falling.Model.Point;
+import com.example.jongmin.falling.Physics.Body2D;
 import com.example.jongmin.falling.Util.Debug;
 import com.example.jongmin.falling.Util.MatOperator;
 
@@ -56,8 +58,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private MainActivity activity;
 
+    private Circle mBall;
     private ArrayList<Model> mModels;
-    private int flag = 0;
+
+    private Body2D mBallBody;
 
     @Override
     // CALLED WHEN SURFACE IS CREATED AT FIRST.
@@ -68,14 +72,17 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         resetViewMatrix();
 
-        // INIT BUBBLE
-//        mCube = new Model();
-//        mCube.setVertices(GeometrySet.cubeVertices);
-//        mCube.setNormals(GeometrySet.cubeNormals);
-//        mCube.setDrawType(GLES20.GL_LINE_STRIP);
-//        mCube.setColor(new float[]{0.0f, 0.0f, 1.0f});
-//        mCube.make();
-        mModels = new ArrayList<Model>();
+        // INIT MODELS
+        mModels = new ArrayList<>();
+        mBall = new Circle(0.2f, 30);
+
+        // INIT BODIES
+        mBallBody = new Body2D(
+                3.0f,                        // mass
+                (3.0f * 0.2f * 0.2f) / 4.0f, // moment of inertia (circle : mr^2 / 4)
+                0.0f,                        // posX
+                0.0f                         // posY
+        );
 
         // INITIALIZE LIGHTS
         mLight = new float[]{2.0f, 3.0f, 14.0f};
@@ -85,7 +92,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         Matrix.setIdentityM(mViewRotationMatrix, 0);
         Matrix.setIdentityM(mViewTranslationMatrix, 0);
         Matrix.translateM(mViewTranslationMatrix, 0, 0, 0, -1.0001f);
-
     }
 
     @Override
@@ -108,22 +114,21 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         Matrix.multiplyMM(mTempMatrix, 0, mViewTranslationMatrix, 0, mViewMatrix, 0);
         System.arraycopy(mTempMatrix, 0, mViewMatrix, 0, 16);
 
-        // Calculate Cube ModelMatrix
-        float scale = 0.4f;
+        // Physics
+        mBallBody.applyForce(GameEnv.gravity);
 
-        // Calculate ModelViewMatrix
-
-        // Calculate NormalMatrix
+        float[] tempMatrix = new float[16];
+        Matrix.setIdentityM(tempMatrix, 0);
+        Matrix.rotateM(tempMatrix, 0, mBallBody.orientation, 0, 0, 1);
+        Matrix.translateM(tempMatrix, 0, mBallBody.position.x, mBallBody.position.y, 0);
+        mBall.setMatrix(tempMatrix);
 
         // Draw
-//        mCube.draw(mProjMatrix, mViewMatrix);
-//        for (Model m:mModels) {
-//            m.draw(mProjMatrix, mViewMatrix);
-//        }
-
         for (Model m : mModels) {
             m.draw(mProjMatrix, mViewMatrix);
         }
+
+        mBall.draw(mProjMatrix, mViewMatrix);
     }
 
     @Override
