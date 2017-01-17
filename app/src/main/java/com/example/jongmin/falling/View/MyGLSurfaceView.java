@@ -1,6 +1,8 @@
 package com.example.jongmin.falling.View;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.util.AttributeSet;
@@ -93,9 +95,46 @@ public class MyGLSurfaceView extends GLSurfaceView {
 //                    System.out.println(e.getX() + " " + e.getY());
                     points.add(p);
                 }
-                else if (count == 2){
+                else if (count == 2 && GameEnv.dialogflag == 0){
 //                    float[] rot = new float[16];
 //
+                    GameEnv.dialogflag = 1;
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(activity);
+
+                    // 제목셋팅
+                    alertDialogBuilder.setTitle("프로그램 종료");
+
+                    // AlertDialog 셋팅
+                    alertDialogBuilder
+                            .setMessage("다음 레벨로?")
+                            .setCancelable(false)
+                            .setPositiveButton("종료",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(
+                                                DialogInterface dialog, int id) {
+                                            // 프로그램을 종료한다
+                                            GameEnv.level = GameEnv.level % 2 + 1;
+                                            System.out.println("level : " + GameEnv.level);
+                                            GameEnv.initflag = 1;
+                                            GameEnv.dialogflag = 0;
+
+                                        }
+                                    })
+                            .setNegativeButton("취소",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(
+                                                DialogInterface dialog, int id) {
+                                            // 다이얼로그를 취소한다
+                                            dialog.cancel();
+                                            GameEnv.dialogflag = 0;
+                                        }
+                                    });
+
+                    // 다이얼로그 생성
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+
+                    // 다이얼로그 보여주기
+                    alertDialog.show();
 //                    Matrix.setIdentityM(rot, 0);
 //                    Matrix.rotateM(rot, 0, dx, 0, 1, 0);
 //                    Matrix.rotateM(rot, 0, dy, 1, 0, 0);
