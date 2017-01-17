@@ -4,7 +4,7 @@ package com.example.jongmin.falling.Model;
  * Created by Jongmin on 2017-01-08.
  */
 
-public class GeometrySet {
+public class  GeometrySet {
 
     public static float cubeVertices[] = {
             // Front face
@@ -109,8 +109,15 @@ public class GeometrySet {
     public static float squareVertices[] = {
             -1.0f, 1.0f, 0.0f,
             -1.0f, -1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
+            0.6f, 1.0f, 0.0f,
             -1.0f, -1.0f, 0.0f,
+            0.6f, -1.0f, 0.0f,
+            0.6f, 1.0f, 0.0f,
+
+            0.6f, 1.0f, 0.0f,
+            0.6f, -1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            0.6f, -1.0f, 0.0f,
             1.0f, -1.0f, 0.0f,
             1.0f, 1.0f, 0.0f
     };

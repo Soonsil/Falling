@@ -17,4 +17,13 @@ public class Debug {
             }
         }
     }
+    public static void printvert(float[] vertices){
+        int i;
+        for(i=0; i<vertices.length; i++){
+            System.out.print(vertices[i] + ", ");
+            if(i%3 == 2){
+                System.out.println();
+            }
+        }
+    }
 }

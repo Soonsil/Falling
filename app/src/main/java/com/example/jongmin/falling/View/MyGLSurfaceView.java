@@ -94,13 +94,13 @@ public class MyGLSurfaceView extends GLSurfaceView {
                     points.add(p);
                 }
                 else if (count == 2){
-                    float[] rot = new float[16];
-
-                    Matrix.setIdentityM(rot, 0);
-                    Matrix.rotateM(rot, 0, dx, 0, 1, 0);
-                    Matrix.rotateM(rot, 0, dy, 1, 0, 0);
-                    Matrix.multiplyMM(temp2, 0, rot, 0, mRenderer.mViewRotationMatrix, 0);
-                    System.arraycopy(temp2, 0, mRenderer.mViewRotationMatrix, 0, 16);
+//                    float[] rot = new float[16];
+//
+//                    Matrix.setIdentityM(rot, 0);
+//                    Matrix.rotateM(rot, 0, dx, 0, 1, 0);
+//                    Matrix.rotateM(rot, 0, dy, 1, 0, 0);
+//                    Matrix.multiplyMM(temp2, 0, rot, 0, mRenderer.mViewRotationMatrix, 0);
+//                    System.arraycopy(temp2, 0, mRenderer.mViewRotationMatrix, 0, 16);
                 }
                 break;
         }

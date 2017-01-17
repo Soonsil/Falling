@@ -123,7 +123,6 @@ public class Model {
                 GLES20.GL_FRAGMENT_SHADER, fshader);
 
         mProgram = GLES20.glCreateProgram();             // create empty OpenGL Program
-        System.out.println("program " + mProgram +" " +vertexShader +" " + fragmentShader);
         GLES20.glAttachShader(mProgram, vertexShader);   // add the vertex shader to program
         GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
         GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
@@ -174,7 +173,6 @@ public class Model {
 
 
 
-        System.out.println(drawtype + " " + vertices.length);
         // Draw the cube
         GLES20.glDrawArrays(drawtype, 0, vertices.length / 3);
 

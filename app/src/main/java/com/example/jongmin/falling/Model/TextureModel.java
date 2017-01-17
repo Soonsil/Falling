@@ -5,6 +5,7 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 
 import com.example.jongmin.falling.MyGLRenderer;
+import com.example.jongmin.falling.Util.MatOperator;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -16,6 +17,7 @@ import java.nio.ByteOrder;
 public class TextureModel extends Model {
     private int mTextureHandle;
     private int mTextureCoorHandle;
+    private String textureFileName = "default.png";
 
     protected float textureCoords[];
     public TextureModel(MyGLRenderer mRenderer){
@@ -25,6 +27,10 @@ public class TextureModel extends Model {
     public void setTextureCoords(float[] textureCoords){
         this.textureCoords = new float[textureCoords.length];
         System.arraycopy(textureCoords, 0, this.textureCoords, 0, textureCoords.length);
+    }
+
+    public void setTextureFileName(String fileName){
+        this.textureFileName = fileName;
     }
     @Override
     public void makeBuffer(){
@@ -50,7 +56,6 @@ public class TextureModel extends Model {
                 GLES20.GL_FRAGMENT_SHADER, fshader);
 
         mProgram = GLES20.glCreateProgram();             // create empty OpenGL Program
-        System.out.println("program " + mProgram +" " +vertexShader +" " + fragmentShader);
         GLES20.glAttachShader(mProgram, vertexShader);   // add the vertex shader to program
         GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
         GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
@@ -60,7 +65,7 @@ public class TextureModel extends Model {
         GLES20.glGenTextures(1, textureHandles, 0);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandles[0]);
-        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, mRenderer.loadImage("brick.png"), 0);
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, mRenderer.loadImage(textureFileName), 0);
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
     }
@@ -108,9 +113,6 @@ public class TextureModel extends Model {
                 GLES20.GL_FLOAT, false,
                 VERTEX_STRIDE, mVertexBuffer);
 
-
-
-        System.out.println(drawtype + " " + vertices.length);
         // Draw the cube
         GLES20.glDrawArrays(drawtype, 0, vertices.length / 3);
 
