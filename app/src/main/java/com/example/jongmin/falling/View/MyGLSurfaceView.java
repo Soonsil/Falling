@@ -108,7 +108,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
                     alertDialogBuilder
                             .setMessage("다음 레벨로?")
                             .setCancelable(false)
-                            .setPositiveButton("종료",
+                            .setPositiveButton("다음레벨",
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(
                                                 DialogInterface dialog, int id) {
@@ -117,15 +117,24 @@ public class MyGLSurfaceView extends GLSurfaceView {
                                             System.out.println("level : " + GameEnv.level);
                                             GameEnv.initflag = 1;
                                             GameEnv.dialogflag = 0;
-
+                                            requestRender();
+                                        }
+                                    })
+                            .setNeutralButton("재시작",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(
+                                                DialogInterface dialog, int id) {
+                                            // 다이얼로그를 취소한다
+                                            GameEnv.initflag = 1;
+                                            GameEnv.dialogflag = 0;
+                                            requestRender();
                                         }
                                     })
                             .setNegativeButton("취소",
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(
                                                 DialogInterface dialog, int id) {
-                                            // 다이얼로그를 취소한다
-                                            dialog.cancel();
+
                                             GameEnv.dialogflag = 0;
                                         }
                                     });

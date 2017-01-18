@@ -5,7 +5,6 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 
 import com.example.jongmin.falling.MyGLRenderer;
-import com.example.jongmin.falling.Util.MatOperator;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -18,11 +17,13 @@ public class TextureModel extends Model {
     private int mTextureHandle;
     private int mTextureCoorHandle;
     private String textureFileName = "default.png";
+    private int texture = 0;
 
     protected float textureCoords[];
-    public TextureModel(MyGLRenderer mRenderer){
+    public TextureModel(MyGLRenderer mRenderer, int texture){
         super(mRenderer);
         setShader("texture-gl2-vshader.glsl", "texture-gl2-fshader.glsl");
+        this.texture = texture;
     }
     public void setTextureCoords(float[] textureCoords){
         this.textureCoords = new float[textureCoords.length];
@@ -63,7 +64,7 @@ public class TextureModel extends Model {
 
         int[] textureHandles = new int[1];
         GLES20.glGenTextures(1, textureHandles, 0);
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0 + texture);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandles[0]);
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, mRenderer.loadImage(textureFileName), 0);
         GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
@@ -112,6 +113,8 @@ public class TextureModel extends Model {
                 mPositionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 VERTEX_STRIDE, mVertexBuffer);
+
+        GLES20.glUniform1i(mTextureHandle, texture);
 
         // Draw the cube
         GLES20.glDrawArrays(drawtype, 0, vertices.length / 3);

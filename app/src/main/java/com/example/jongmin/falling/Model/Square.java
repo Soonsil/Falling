@@ -10,7 +10,7 @@ import com.example.jongmin.falling.MyGLRenderer;
 
 public class Square extends TextureModel {
     public Square(MyGLRenderer mRenderer){
-        super(mRenderer);
+        super(mRenderer, 0);
         setVertices(GeometrySet.squareVertices);
         setNormals(GeometrySet.squareNormals);
         setDrawType(GLES20.GL_TRIANGLES);
