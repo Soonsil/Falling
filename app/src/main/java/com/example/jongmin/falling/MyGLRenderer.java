@@ -9,9 +9,15 @@ import android.util.Log;
 
 import com.example.jongmin.falling.Activities.MainActivity;
 import com.example.jongmin.falling.Environment.GameEnv;
+import com.example.jongmin.falling.Model.DirectionalPoint;
+import com.example.jongmin.falling.Model.DirectionalPoint.Direction;
 import com.example.jongmin.falling.Model.Model;
+import com.example.jongmin.falling.Model.Point;
 import com.example.jongmin.falling.Model.Square;
 import com.example.jongmin.falling.Model.TextureModel;
+import com.example.jongmin.falling.Util.ArrayOperator;
+import com.example.jongmin.falling.Util.Debug;
+import com.example.jongmin.falling.Util.VecOperator;
 
 import org.apache.commons.io.IOUtils;
 
@@ -112,38 +118,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glLineWidth(10.0f);
 
         if(GameEnv.initflag==1){
-            System.out.println("init!!!");
-            mModels.clear();
-            String levelfile = "level" +  GameEnv.level + "/map.txt";
-//            File file = activity.getFileStreamPath(levelfile);
-//
-//            if( file.isFile() == false ) {
-            String strBuf = ReadTextAssets(levelfile);
-            String[] array;
-            array =  strBuf.split("\n");
-            for(int i=1; i<array.length; i++){
-                String[] arr = array[i].split(" ");
-                TextureModel square = new TextureModel(this, i);
-                String folder = "level" + GameEnv.level;
-                System.out.println("folder: " + folder);
-                String imagefilename = folder + "/brick" + i + ".png";
-                square.setTextureFileName(imagefilename);
-                square.makeShader();
-                makeModelByImageFile(square, imagefilename);
-                System.out.println(imagefilename);
-                Matrix.setIdentityM(mTempMatrix, 0);
-                Matrix.translateM(mTempMatrix, 0 , Float.parseFloat(arr[0]), Float.parseFloat(arr[1]),0.0f);
-                Matrix.scaleM(mTempMatrix, 0, Float.parseFloat(arr[2]), Float.parseFloat(arr[3]), 0.0f);
-                square.setMatrix(mTempMatrix);
-                mModels.add(square);
-            }
-//            }
-            GameEnv.initflag = 0;
+            init();
         }
         if(GameEnv.newflag == 1){
-            Model m = new Model(this);
-            m.makeShader();
-            makeNewModelByTouch(m);
+            makeNewModelByTouch();
             GameEnv.newflag = 0;
         }
 
@@ -272,18 +250,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             android.graphics.Matrix matrix = new android.graphics.Matrix();
             matrix.preScale(1.0f, -1.0f);
             Bitmap image = Bitmap.createBitmap(tmp, 0, 0, tmp.getWidth(), tmp.getHeight(), matrix, true);
-//            System.out.println(fileName);
-//            System.out.println(0x0000FF<<24);
-//            System.out.println((tmp.getPixel(1, 2))&0x00FFFFFF);
-//            System.out.println(image.getPixel(1, 2));
-//            System.out.println(tmp.getPixel(5, 5));
-//            System.out.println(image.getPixel(5, 5));
-//            System.out.println(tmp.getPixel(120, 120));
-//            System.out.println(image.getPixel(120, 120));
 
-            System.out.println(image.getWidth() + " " + image.getHeight());
-            System.out.println(tmp.getWidth() + " " + tmp.getHeight());
-
+//            System.out.println(image.getWidth() + " " + image.getHeight());
+//            System.out.println(tmp.getWidth() + " " + tmp.getHeight());
 
             tmp.recycle();
             return image;
@@ -316,7 +285,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         this.activity = activity;
     }
 
-    public void makeNewModelByTouch(Model m){
+    public void makeNewModelByTouch(){
+
+        Model m = new Model(this);
+        m.makeShader();
         float[] vertices = new float[GameEnv.points.size() * 3];
         float[] normals = new float[GameEnv.points.size() * 3];
 
@@ -398,57 +370,267 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        System.out.println(minWidth + " " + maxWidth + " " + width + " " + height);
-        float[] vertices = new float[(maxWidth - minWidth) * 18];
-        float[] textures = new float[(maxWidth - minWidth) * 18];
+        ArrayList<Point> aboves = new ArrayList<Point>();
+        ArrayList<Point> belows = new ArrayList<Point>();
+        ArrayList<DirectionalPoint> points = new ArrayList<DirectionalPoint>();
+
+        aboves.add(new Point(minWidth, above[minWidth]));
+        belows.add(new Point(minWidth, below[minWidth]));
+        points.add(new DirectionalPoint(new Point(minWidth, above[minWidth]), Direction.above));
+        points.add(new DirectionalPoint(new Point(minWidth, below[minWidth]), Direction.below));
+        for(int i=minWidth + 2; i<maxWidth; i++){
+            if((above[i] - above[i-1]) != (above[i-1] - above[i-2])){
+                aboves.add(new Point(i-1, above[i-1]));
+                points.add(new DirectionalPoint(new Point(i-1, above[i-1]), Direction.above));
+            }
+            if((below[i] - below[i-1]) != (below[i-1] - below[i-2])){
+                belows.add(new Point(i-1, below[i-1]));
+                points.add(new DirectionalPoint(new Point(i-1, below[i-1]), Direction.below));
+            }
+        }
+
+
+
+        aboves.add(new Point(maxWidth - 1, above[maxWidth - 1]));
+        belows.add(new Point(maxWidth - 1, below[maxWidth - 1]));
+        points.add(new DirectionalPoint(new Point(maxWidth - 1, above[maxWidth - 1]), Direction.above));
+        points.add(new DirectionalPoint(new Point(maxWidth - 1, below[maxWidth - 1]), Direction.below));
+
+        System.out.println("pointsize " + points.size());
+
+//        float[] vertices = new float[points.size() * 3];
+//        float[] textures = new float[points.size() * 3];
+//        for(int i=0; i<points.size(); i++){
+//            Point p = new Point(points.get(i).p.x/width, points.get(i).p.y/height);
+//            ArrayOperator.insertPoint(vertices, 3*i, p);
+//            ArrayOperator.insertPoint(textures, 3*i, p);
+//        }
+
+        float[] vertices = new float[(points.size() - 2) * 9];
+        float[] textures = new float[(points.size() - 2) * 9];
+        for(int i=0; i<vertices.length; i++){
+            vertices[i] = -1;
+        }
+        int [] indexs = new int[]{0,1,2};
+        int offset = 0;
+        while(indexs[2] < points.size()){
+            System.out.println("hi" + " " +  indexs[2] + " " +  points.size());
+            offset = makeTriangles(vertices, offset, indexs, points);
+        }
+        ArrayOperator.scaleArray(vertices, (float)1/width, 0, 3);
+        ArrayOperator.scaleArray(vertices, (float)1/height, 1, 3);
+        System.arraycopy(vertices, 0, textures, 0 ,vertices.length);
+
         int vwidth = maxWidth - minWidth;
         int vheight = maxHeight - minHeight;
-        for(int i = minWidth; i< maxWidth ; i++){
-            int x = i - minWidth;
-            vertices[(i - minWidth) * 18 + 0] = ((float) x/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 1] = ((float) (above[i] - minHeight)/vheight) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 2] = 0.0f;
-            vertices[(i - minWidth) * 18 + 3] = ((float) x/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 4] = ((float) (below[i]-minHeight)/vheight) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 5] = 0.0f;
-            vertices[(i - minWidth) * 18 + 6] = ((float) (x+1)/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 7] = ((float) (above[i+1]-minHeight)/vheight) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 8] = 0.0f;
+        System.out.println(minWidth + " " + maxWidth + " " + width + " " + height);
+//        float[] vertices = new float[(maxWidth - minWidth) * 18];
+//        for(int i=0; i<vertices.length; i++){
+//            vertices[i] = -1;
+//        }
+//        float[] textures = new float[(maxWidth - minWidth) * 18];
+//        for(int i = minWidth; i< maxWidth ; i++){
+//            int x = i - minWidth;
+//            Point[] verticePoints = new Point[6];
+//            verticePoints[0] = new Point((float)i/width, (float)above[i]/height);
+//            verticePoints[1] = new Point((float)i/width, (float)below[i]/height);
+//            verticePoints[2] = new Point((float)(i+1)/width, (float)above[i+1]/height);
+//            verticePoints[3] = new Point((float)i/width, (float)below[i]/height);
+//            verticePoints[4] = new Point((float)(i+1)/width, (float)below[i+1]/height);
+//            verticePoints[5] = new Point((float)(i+1)/width, (float)above[i+1]/height);
+//
+//            for(int j = 0 ; j < 6 ; j++){
+//                ArrayOperator.insertPoint(vertices, (i - minWidth) * 18 + 3*j, verticePoints[j]);
+//                ArrayOperator.insertPoint(textures, (i - minWidth) * 18 + 3*j, verticePoints[j]);
+//            }
+//        }
+        ArrayOperator.scaleArray(vertices, (float)width / vwidth * 2.0f, 0, 3);
+        ArrayOperator.scaleArray(vertices, (float)height / vheight * 2.0f, 1, 3);
+        ArrayOperator.addArray(vertices, -1.0f);
+        System.out.println("---texture---");
+        Debug.printvert(textures);
+        System.out.println("---vertice---");
 
-            textures[(i - minWidth) * 18 + 0] = (float) i/width;
-            textures[(i - minWidth) * 18 + 1] = (float) above[i]/height;
-            textures[(i - minWidth) * 18 + 2] = 0.0f;
-            textures[(i - minWidth) * 18 + 3] = (float) i/width;
-            textures[(i - minWidth) * 18 + 4] = (float) below[i]/height;
-            textures[(i - minWidth) * 18 + 5] = 0.0f;
-            textures[(i - minWidth) * 18 + 6] = (float) (i+1)/width;
-            textures[(i - minWidth) * 18 + 7] = (float) above[i+1]/height;
-            textures[(i - minWidth) * 18 + 8] = 0.0f;
+        Debug.printvert(vertices);
 
-            vertices[(i - minWidth) * 18 + 9] = ((float) x/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 10] = ((float) (below[i]-minHeight)/vheight) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 11] = 0.0f;
-            vertices[(i - minWidth) * 18 + 12] = ((float) (x+1)/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 13] = ((float) (below[i+1]-minHeight)/vheight) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 14] = 0.0f;
-            vertices[(i - minWidth) * 18 + 15] = ((float) (x+1)/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 16] = ((float) (above[i+1]-minHeight)/vheight) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 17] = 0.0f;
-
-            textures[(i - minWidth) * 18 + 9] = (float) i/width;
-            textures[(i - minWidth) * 18 + 10] = (float) below[i]/height;
-            textures[(i - minWidth) * 18 + 11] = 0.0f;
-            textures[(i - minWidth) * 18 + 12] = (float) (i+1)/width;
-            textures[(i - minWidth) * 18 + 13] = (float) below[i+1]/height;
-            textures[(i - minWidth) * 18 + 14] = 0.0f;
-            textures[(i - minWidth) * 18 + 15] = (float) (i+1)/width;
-            textures[(i - minWidth) * 18 + 16] = (float) above[i+1]/height;
-            textures[(i - minWidth) * 18 + 17] = 0.0f;
-        }
         m.setVertices(vertices);
         m.setTextureCoords(textures);
+//        m.setDrawType(GLES20.GL_LINE_STRIP);
         m.makeBuffer();
     }
 
+    public int makeTriangles(float[] vertices, int offset, int[] indexs, ArrayList<DirectionalPoint> points){
+        System.out.println(offset + " " + indexs[0] + " " + indexs[1] + " " + indexs[2] + " " + points.size() + " " +  vertices.length);
+        DirectionalPoint a = points.get(indexs[0]);
+        DirectionalPoint b = points.get(indexs[1]);
+        DirectionalPoint c = points.get(indexs[2]);
+        System.out.println("(" + a.p.x + " " + a.p.y + ") (" + b.p.x + " " + b.p.y + ") (" + c.p.x + " " + c.p.y + ")");
 
+
+        Point ba = Point.sub(b.p, a.p);
+        Point cb = Point.sub(c.p, b.p);
+        float[] normal = new float[3];
+        VecOperator.cross(ba.pointToVector(), cb.pointToVector(), normal);
+        System.out.println("c3");
+
+
+        if(b.d == c.d){
+            if(normal[2] < 0){
+                int offset2 = offset + 9;
+                int newc = indexs[2];
+                int [] newindexs = new int[]{indexs[1], indexs[2], indexs[2]+1};
+                while((normal[2] < 0 && a.d == Direction.above) || (normal[2] > 0 && a.d == Direction.below)) {
+                    offset2 = makeTriangles(vertices, offset2, newindexs, points);
+                    newc = newindexs[1];
+                    c = points.get(newc);
+                    cb = Point.sub(c.p, b.p);
+                    VecOperator.cross(ba.pointToVector(), cb.pointToVector(), normal);
+                    System.out.println();
+                    //조치가 필요
+                    System.out.println(indexs[0] + " " + indexs[1] + " " + newc + " " + normal[2]);
+                }
+                System.out.println("c41");
+                makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
+                offset = offset2;
+
+                indexs[1] = newindexs[1];
+                indexs[2] = newindexs[2];
+
+                if(b.d != c.d){
+                    indexs[0] = newindexs[0];
+                }
+                return offset;
+            }
+            else{
+                if(vertices[offset + 2] == -1) {
+                    makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
+                }
+                System.out.println("c42");
+                int ret = indexs[2];
+                indexs[1] = indexs[2];
+                indexs[2] = indexs[2] + 1;
+                offset = offset + 9;
+
+                return offset;
+            }
+        }
+        else{
+            if(vertices[offset + 2] == -1) {
+                makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
+            }
+            System.out.println("c43");
+            int ret = indexs[2];
+            indexs[0] = indexs[1];
+            indexs[1] = indexs[2];
+            indexs[2] = indexs[2]+1;
+            offset = offset + 9;
+
+            return offset;
+        }
+    }
+    public int makeTriangles(float[] vertices, int offset, int aindex, int bindex, int cindex, ArrayList<DirectionalPoint> points){
+        System.out.println(aindex + " " + bindex + " " + cindex + " " + offset + " " + points.size() + " " + vertices.length);
+
+        if(cindex >= points.size()){
+            return 0;
+        }
+        System.out.println("c1");
+        DirectionalPoint a = points.get(aindex);
+        DirectionalPoint b = points.get(bindex);
+        DirectionalPoint c = points.get(cindex);
+        System.out.println("c2");
+
+
+        Point ba = Point.sub(b.p, a.p);
+        Point cb = Point.sub(c.p, b.p);
+        float[] normal = new float[3];
+        VecOperator.cross(ba.pointToVector(), cb.pointToVector(), normal);
+        System.out.println("c3");
+
+
+        if(b.d == c.d){
+            if(normal[2] < 0){
+                int offset2 = offset;
+                int newc = cindex;
+                while(normal[2] < 0) {
+                    offset2 = offset2 + 9;
+                    newc = makeTriangles(vertices, offset2, bindex, cindex, cindex + 1, points);
+                    c = points.get(newc);
+                    cb = Point.sub(c.p, b.p);
+                    VecOperator.cross(ba.pointToVector(), cb.pointToVector(), normal);
+                    //조치가 필요
+                }
+                System.out.println("c41");
+                makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
+                return newc;
+
+            }
+            else{
+                if(vertices[offset + 2] != -1) {
+                    makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
+                }
+                System.out.println("c42");
+                System.out.println(aindex + " " + cindex + " " + (cindex + 1) + " " + (offset+9) + " " + points.size() + " " + vertices.length);
+
+                makeTriangles(vertices, offset + 9, aindex, cindex, cindex + 1, points);
+                return cindex + 1;
+            }
+        }
+        else{
+            if(vertices[offset + 2] != -1) {
+                makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
+            }
+            System.out.println("c43");
+
+            makeTriangles(vertices, offset + 9, bindex, cindex, cindex + 1, points);
+            return cindex + 1;
+        }
+    }
+
+    public void makeTriangleThreePoints(Point a, Point b, Point c, float[] vertices, int offset){
+        Point ba = Point.sub(b, a);
+        Point cb = Point.sub(c, b);
+        float[] normal = new float[3];
+        VecOperator.cross(ba.pointToVector(), cb.pointToVector(), normal);
+        if(normal[2] > 0){
+            ArrayOperator.insertPoint(vertices, offset + 0, a);
+            ArrayOperator.insertPoint(vertices, offset + 3, b);
+            ArrayOperator.insertPoint(vertices, offset + 6, c);
+        }
+        else{
+            ArrayOperator.insertPoint(vertices, offset + 0, c);
+            ArrayOperator.insertPoint(vertices, offset + 3, b);
+            ArrayOperator.insertPoint(vertices, offset + 6, a);
+
+        }
+    }
+    public void init(){
+        System.out.println("init!!!");
+        mModels.clear();
+        String levelfile = "level" +  GameEnv.level + "/map.txt";
+//            File file = activity.getFileStreamPath(levelfile);
+//
+//            if( file.isFile() == false ) {
+        String strBuf = ReadTextAssets(levelfile);
+        String[] array;
+        array =  strBuf.split("\n");
+        for(int i=1; i<array.length; i++){
+            String[] arr = array[i].split(" ");
+            TextureModel square = new TextureModel(this, i);
+            String folder = "level" + GameEnv.level;
+//            System.out.println("folder: " + folder);
+            String imagefilename = folder + "/brick" + i + ".png";
+            square.setTextureFileName(imagefilename);
+            square.makeShader();
+            makeModelByImageFile(square, imagefilename);
+//            System.out.println(imagefilename);
+            Matrix.setIdentityM(mTempMatrix, 0);
+            Matrix.translateM(mTempMatrix, 0 , Float.parseFloat(arr[0]), Float.parseFloat(arr[1]),0.0f);
+            Matrix.scaleM(mTempMatrix, 0, Float.parseFloat(arr[2]), Float.parseFloat(arr[3]), 0.0f);
+            square.setMatrix(mTempMatrix);
+            mModels.add(square);
+        }
+//            }
+        GameEnv.initflag = 0;
+    }
 }

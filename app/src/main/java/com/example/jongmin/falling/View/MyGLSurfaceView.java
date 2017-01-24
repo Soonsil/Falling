@@ -134,7 +134,6 @@ public class MyGLSurfaceView extends GLSurfaceView {
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(
                                                 DialogInterface dialog, int id) {
-
                                             GameEnv.dialogflag = 0;
                                         }
                                     });
