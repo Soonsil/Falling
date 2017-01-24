@@ -56,6 +56,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     private ArrayList<Model> mModels;
     private Model mSquare;
     private int flag = 0;
+
     @Override
     // CALLED WHEN SURFACE IS CREATED AT FIRST.
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
@@ -90,11 +91,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 //        }
 
 
-
-
-
-
-
         // INITIALIZE LIGHTS
         mLight = new float[]{2.0f, 3.0f, 14.0f};
         mLight2 = new float[]{-2.0f, -3.0f, -5.0f};
@@ -111,17 +107,17 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 unused) {
         GLES20.glLineWidth(10.0f);
 
-        if(GameEnv.initflag==1){
+        if (GameEnv.initflag == 1) {
             System.out.println("init!!!");
             mModels.clear();
-            String levelfile = "level" +  GameEnv.level + "/map.txt";
+            String levelfile = "level" + GameEnv.level + "/map.txt";
 //            File file = activity.getFileStreamPath(levelfile);
 //
 //            if( file.isFile() == false ) {
             String strBuf = ReadTextAssets(levelfile);
             String[] array;
-            array =  strBuf.split("\n");
-            for(int i=1; i<array.length; i++){
+            array = strBuf.split("\n");
+            for (int i = 1; i < array.length; i++) {
                 String[] arr = array[i].split(" ");
                 TextureModel square = new TextureModel(this, i);
                 String folder = "level" + GameEnv.level;
@@ -132,7 +128,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 makeModelByImageFile(square, imagefilename);
                 System.out.println(imagefilename);
                 Matrix.setIdentityM(mTempMatrix, 0);
-                Matrix.translateM(mTempMatrix, 0 , Float.parseFloat(arr[0]), Float.parseFloat(arr[1]),0.0f);
+                Matrix.translateM(mTempMatrix, 0, Float.parseFloat(arr[0]), Float.parseFloat(arr[1]), 0.0f);
                 Matrix.scaleM(mTempMatrix, 0, Float.parseFloat(arr[2]), Float.parseFloat(arr[3]), 0.0f);
                 square.setMatrix(mTempMatrix);
                 mModels.add(square);
@@ -140,7 +136,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 //            }
             GameEnv.initflag = 0;
         }
-        if(GameEnv.newflag == 1){
+        if (GameEnv.newflag == 1) {
             Model m = new Model(this);
             m.makeShader();
             makeNewModelByTouch(m);
@@ -160,23 +156,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         Matrix.multiplyMM(mTempMatrix, 0, mViewTranslationMatrix, 0, mViewMatrix, 0);
         System.arraycopy(mTempMatrix, 0, mViewMatrix, 0, 16);
 
-        // Calculate Cube ModelMatrix
-        float scale = 0.4f;
-
-        // Calculate ModelViewMatrix
-
-        // Calculate NormalMatrix
-
-        // Draw
-//        mCube.draw(mProjMatrix, mViewMatrix);
-//        for (Model m:mModels) {
-//            m.draw(mProjMatrix, mViewMatrix);
-//        }
-
-        for(Model m : mModels){
+        // Draw models
+        for (Model m : mModels) {
             m.draw(mProjMatrix, mViewMatrix);
         }
-//        activity.update();
     }
 
     @Override
@@ -190,8 +173,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         final float ratio = (float) width / height;
         final float left = -1;
         final float right = 1;
-        final float bottom = -1.0f/ratio;
-        final float top = 1.0f/ratio;
+        final float bottom = -1.0f / ratio;
+        final float top = 1.0f / ratio;
         final float near = 1.0f;
         final float far = 400.0f;
 
@@ -312,19 +295,20 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             throw new RuntimeException(glOperation + ": glError " + error);
         }
     }
-    public void setActivity(MainActivity activity){
+
+    public void setActivity(MainActivity activity) {
         this.activity = activity;
     }
 
-    public void makeNewModelByTouch(Model m){
+    public void makeNewModelByTouch(Model m) {
         float[] vertices = new float[GameEnv.points.size() * 3];
         float[] normals = new float[GameEnv.points.size() * 3];
 
         int idx = 0;
-        float ratio = (float) mWidth/mHeight;
-        while (idx != GameEnv.points.size()){
-            vertices[idx * 3] = ((GameEnv.points.get(idx).x/mWidth) * 2.0f - 1.0f);
-            vertices[idx * 3 + 1] = -((GameEnv.points.get(idx).y/mHeight) * 2.0f - 1.0f)/ratio;
+        float ratio = (float) mWidth / mHeight;
+        while (idx != GameEnv.points.size()) {
+            vertices[idx * 3] = ((GameEnv.points.get(idx).x / mWidth) * 2.0f - 1.0f);
+            vertices[idx * 3 + 1] = -((GameEnv.points.get(idx).y / mHeight) * 2.0f - 1.0f) / ratio;
             vertices[idx * 3 + 2] = 0.0f;
             //System.out.println(points.get(idx).x/width + " " + points.get(idx).y/height);
 //            System.out.println((idx * 3 + 2)+ " " + vertices.length);
@@ -344,6 +328,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
 
     }
+
     public String ReadTextAssets(String fileName) {
         String text = null;
         try {
@@ -360,38 +345,38 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         return text;
     }
 
-    public void makeModelByImageFile(TextureModel m, String filename){
+    public void makeModelByImageFile(TextureModel m, String filename) {
         Bitmap bitmap = loadImage(filename);
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        int []colors = new int[width * height];
-        int []below = new int[width];
-        int []above = new int[width];
+        int[] colors = new int[width * height];
+        int[] below = new int[width];
+        int[] above = new int[width];
         int transparent = 0xFF0000FF;
 
         int minWidth = -1, maxWidth = -1;
         int minHeight = height, maxHeight = -1;
-        bitmap.getPixels(colors, 0, width, 0, 0 , width, height);
-        for (int i=0; i<width; i++){
+        bitmap.getPixels(colors, 0, width, 0, 0, width, height);
+        for (int i = 0; i < width; i++) {
             below[i] = -1;
             above[i] = -1;
-            for(int j=0; j<height; j++){
+            for (int j = 0; j < height; j++) {
                 int color = colors[i + j * width];
-                if(color != transparent){
-                    if(minWidth == -1){
+                if (color != transparent) {
+                    if (minWidth == -1) {
                         minWidth = i;
                     }
                     maxWidth = i;
 
-                    if(below[i] == -1){
+                    if (below[i] == -1) {
                         below[i] = j;
                     }
                     above[i] = j;
 
-                    if(minHeight > j){
+                    if (minHeight > j) {
                         minHeight = j;
                     }
-                    if(maxHeight < j){
+                    if (maxHeight < j) {
                         maxHeight = j;
                     }
                 }
@@ -403,52 +388,50 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         float[] textures = new float[(maxWidth - minWidth) * 18];
         int vwidth = maxWidth - minWidth;
         int vheight = maxHeight - minHeight;
-        for(int i = minWidth; i< maxWidth ; i++){
+        for (int i = minWidth; i < maxWidth; i++) {
             int x = i - minWidth;
-            vertices[(i - minWidth) * 18 + 0] = ((float) x/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 1] = ((float) (above[i] - minHeight)/vheight) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 0] = ((float) x / vwidth) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 1] = ((float) (above[i] - minHeight) / vheight) * 2.0f - 1.0f;
             vertices[(i - minWidth) * 18 + 2] = 0.0f;
-            vertices[(i - minWidth) * 18 + 3] = ((float) x/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 4] = ((float) (below[i]-minHeight)/vheight) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 3] = ((float) x / vwidth) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 4] = ((float) (below[i] - minHeight) / vheight) * 2.0f - 1.0f;
             vertices[(i - minWidth) * 18 + 5] = 0.0f;
-            vertices[(i - minWidth) * 18 + 6] = ((float) (x+1)/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 7] = ((float) (above[i+1]-minHeight)/vheight) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 6] = ((float) (x + 1) / vwidth) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 7] = ((float) (above[i + 1] - minHeight) / vheight) * 2.0f - 1.0f;
             vertices[(i - minWidth) * 18 + 8] = 0.0f;
 
-            textures[(i - minWidth) * 18 + 0] = (float) i/width;
-            textures[(i - minWidth) * 18 + 1] = (float) above[i]/height;
+            textures[(i - minWidth) * 18 + 0] = (float) i / width;
+            textures[(i - minWidth) * 18 + 1] = (float) above[i] / height;
             textures[(i - minWidth) * 18 + 2] = 0.0f;
-            textures[(i - minWidth) * 18 + 3] = (float) i/width;
-            textures[(i - minWidth) * 18 + 4] = (float) below[i]/height;
+            textures[(i - minWidth) * 18 + 3] = (float) i / width;
+            textures[(i - minWidth) * 18 + 4] = (float) below[i] / height;
             textures[(i - minWidth) * 18 + 5] = 0.0f;
-            textures[(i - minWidth) * 18 + 6] = (float) (i+1)/width;
-            textures[(i - minWidth) * 18 + 7] = (float) above[i+1]/height;
+            textures[(i - minWidth) * 18 + 6] = (float) (i + 1) / width;
+            textures[(i - minWidth) * 18 + 7] = (float) above[i + 1] / height;
             textures[(i - minWidth) * 18 + 8] = 0.0f;
 
-            vertices[(i - minWidth) * 18 + 9] = ((float) x/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 10] = ((float) (below[i]-minHeight)/vheight) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 9] = ((float) x / vwidth) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 10] = ((float) (below[i] - minHeight) / vheight) * 2.0f - 1.0f;
             vertices[(i - minWidth) * 18 + 11] = 0.0f;
-            vertices[(i - minWidth) * 18 + 12] = ((float) (x+1)/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 13] = ((float) (below[i+1]-minHeight)/vheight) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 12] = ((float) (x + 1) / vwidth) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 13] = ((float) (below[i + 1] - minHeight) / vheight) * 2.0f - 1.0f;
             vertices[(i - minWidth) * 18 + 14] = 0.0f;
-            vertices[(i - minWidth) * 18 + 15] = ((float) (x+1)/vwidth) * 2.0f - 1.0f;
-            vertices[(i - minWidth) * 18 + 16] = ((float) (above[i+1]-minHeight)/vheight) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 15] = ((float) (x + 1) / vwidth) * 2.0f - 1.0f;
+            vertices[(i - minWidth) * 18 + 16] = ((float) (above[i + 1] - minHeight) / vheight) * 2.0f - 1.0f;
             vertices[(i - minWidth) * 18 + 17] = 0.0f;
 
-            textures[(i - minWidth) * 18 + 9] = (float) i/width;
-            textures[(i - minWidth) * 18 + 10] = (float) below[i]/height;
+            textures[(i - minWidth) * 18 + 9] = (float) i / width;
+            textures[(i - minWidth) * 18 + 10] = (float) below[i] / height;
             textures[(i - minWidth) * 18 + 11] = 0.0f;
-            textures[(i - minWidth) * 18 + 12] = (float) (i+1)/width;
-            textures[(i - minWidth) * 18 + 13] = (float) below[i+1]/height;
+            textures[(i - minWidth) * 18 + 12] = (float) (i + 1) / width;
+            textures[(i - minWidth) * 18 + 13] = (float) below[i + 1] / height;
             textures[(i - minWidth) * 18 + 14] = 0.0f;
-            textures[(i - minWidth) * 18 + 15] = (float) (i+1)/width;
-            textures[(i - minWidth) * 18 + 16] = (float) above[i+1]/height;
+            textures[(i - minWidth) * 18 + 15] = (float) (i + 1) / width;
+            textures[(i - minWidth) * 18 + 16] = (float) above[i + 1] / height;
             textures[(i - minWidth) * 18 + 17] = 0.0f;
         }
         m.setVertices(vertices);
         m.setTextureCoords(textures);
         m.makeBuffer();
     }
-
-
 }
