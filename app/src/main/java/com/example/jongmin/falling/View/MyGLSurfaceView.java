@@ -117,6 +117,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
                                             System.out.println("level : " + GameEnv.level);
                                             GameEnv.initflag = 1;
                                             GameEnv.dialogflag = 0;
+                                            GameEnv.starttime = System.currentTimeMillis();
                                             requestRender();
                                         }
                                     })

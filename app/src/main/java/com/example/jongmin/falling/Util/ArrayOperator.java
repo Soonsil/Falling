@@ -18,6 +18,11 @@ public class ArrayOperator {
             array[i] = array[i]*scale;
         }
     }
+    public static void addArray(float[] array, float num, int offset, int interval){
+        for(int i=offset; i<array.length; i = i + interval){
+            array[i] = array[i] + num;
+        }
+    }
     public static void addArray(float[] array, float num){
         for(int i=0; i<array.length; i++){
             array[i] = array[i] + num;

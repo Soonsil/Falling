@@ -414,39 +414,38 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         int [] indexs = new int[]{0,1,2};
         int offset = 0;
         while(indexs[2] < points.size()){
-            System.out.println("hi" + " " +  indexs[2] + " " +  points.size());
+//            System.out.println("hi" + " " +  indexs[2] + " " +  points.size());
             offset = makeTriangles(vertices, offset, indexs, points);
         }
         ArrayOperator.scaleArray(vertices, (float)1/width, 0, 3);
         ArrayOperator.scaleArray(vertices, (float)1/height, 1, 3);
         System.arraycopy(vertices, 0, textures, 0 ,vertices.length);
 
+        float[][] borders = new float[aboves.size() + belows.size()][2];
+        for(int i=0; i<aboves.size(); i++){
+            Point p = aboves.get(i);
+            borders[i][0] = p.x;
+            borders[i][1] = p.y;
+        }
+        for(int i=0; i<belows.size(); i++){
+            Point p = belows.get(i);
+            borders[aboves.size() + belows.size() - i - 1][0] = p.x;
+            borders[aboves.size() + belows.size() - i - 1][1] = p.y;
+        }
+
         int vwidth = maxWidth - minWidth;
         int vheight = maxHeight - minHeight;
         System.out.println(minWidth + " " + maxWidth + " " + width + " " + height);
-//        float[] vertices = new float[(maxWidth - minWidth) * 18];
-//        for(int i=0; i<vertices.length; i++){
-//            vertices[i] = -1;
-//        }
-//        float[] textures = new float[(maxWidth - minWidth) * 18];
-//        for(int i = minWidth; i< maxWidth ; i++){
-//            int x = i - minWidth;
-//            Point[] verticePoints = new Point[6];
-//            verticePoints[0] = new Point((float)i/width, (float)above[i]/height);
-//            verticePoints[1] = new Point((float)i/width, (float)below[i]/height);
-//            verticePoints[2] = new Point((float)(i+1)/width, (float)above[i+1]/height);
-//            verticePoints[3] = new Point((float)i/width, (float)below[i]/height);
-//            verticePoints[4] = new Point((float)(i+1)/width, (float)below[i+1]/height);
-//            verticePoints[5] = new Point((float)(i+1)/width, (float)above[i+1]/height);
-//
-//            for(int j = 0 ; j < 6 ; j++){
-//                ArrayOperator.insertPoint(vertices, (i - minWidth) * 18 + 3*j, verticePoints[j]);
-//                ArrayOperator.insertPoint(textures, (i - minWidth) * 18 + 3*j, verticePoints[j]);
-//            }
-//        }
+
+
+        ArrayOperator.addArray(vertices, (float)-minWidth/width, 0, 3);
+        ArrayOperator.addArray(vertices, (float)-minHeight/height, 1, 3);;
         ArrayOperator.scaleArray(vertices, (float)width / vwidth * 2.0f, 0, 3);
         ArrayOperator.scaleArray(vertices, (float)height / vheight * 2.0f, 1, 3);
         ArrayOperator.addArray(vertices, -1.0f);
+        ArrayOperator.scaleArray(vertices, (float)vheight / vwidth, 1, 3);
+
+        ArrayOperator.addArray(vertices, 1.0f, 2 , 3);
         System.out.println("---texture---");
         Debug.printvert(textures);
         System.out.println("---vertice---");
@@ -460,18 +459,17 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     }
 
     public int makeTriangles(float[] vertices, int offset, int[] indexs, ArrayList<DirectionalPoint> points){
-        System.out.println(offset + " " + indexs[0] + " " + indexs[1] + " " + indexs[2] + " " + points.size() + " " +  vertices.length);
+//        System.out.println(offset + " " + indexs[0] + " " + indexs[1] + " " + indexs[2] + " " + points.size() + " " +  vertices.length);
         DirectionalPoint a = points.get(indexs[0]);
         DirectionalPoint b = points.get(indexs[1]);
         DirectionalPoint c = points.get(indexs[2]);
-        System.out.println("(" + a.p.x + " " + a.p.y + ") (" + b.p.x + " " + b.p.y + ") (" + c.p.x + " " + c.p.y + ")");
+//        System.out.println("(" + a.p.x + " " + a.p.y + ") (" + b.p.x + " " + b.p.y + ") (" + c.p.x + " " + c.p.y + ")");
 
 
         Point ba = Point.sub(b.p, a.p);
         Point cb = Point.sub(c.p, b.p);
         float[] normal = new float[3];
         VecOperator.cross(ba.pointToVector(), cb.pointToVector(), normal);
-        System.out.println("c3");
 
 
         if(b.d == c.d){
@@ -485,11 +483,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                     c = points.get(newc);
                     cb = Point.sub(c.p, b.p);
                     VecOperator.cross(ba.pointToVector(), cb.pointToVector(), normal);
-                    System.out.println();
+//                    System.out.println();
                     //조치가 필요
-                    System.out.println(indexs[0] + " " + indexs[1] + " " + newc + " " + normal[2]);
+//                    System.out.println(indexs[0] + " " + indexs[1] + " " + newc + " " + normal[2]);
                 }
-                System.out.println("c41");
                 makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
                 offset = offset2;
 
@@ -505,7 +502,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 if(vertices[offset + 2] == -1) {
                     makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
                 }
-                System.out.println("c42");
                 int ret = indexs[2];
                 indexs[1] = indexs[2];
                 indexs[2] = indexs[2] + 1;
@@ -518,7 +514,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             if(vertices[offset + 2] == -1) {
                 makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
             }
-            System.out.println("c43");
             int ret = indexs[2];
             indexs[0] = indexs[1];
             indexs[1] = indexs[2];
@@ -534,18 +529,15 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         if(cindex >= points.size()){
             return 0;
         }
-        System.out.println("c1");
         DirectionalPoint a = points.get(aindex);
         DirectionalPoint b = points.get(bindex);
         DirectionalPoint c = points.get(cindex);
-        System.out.println("c2");
 
 
         Point ba = Point.sub(b.p, a.p);
         Point cb = Point.sub(c.p, b.p);
         float[] normal = new float[3];
         VecOperator.cross(ba.pointToVector(), cb.pointToVector(), normal);
-        System.out.println("c3");
 
 
         if(b.d == c.d){
@@ -560,7 +552,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                     VecOperator.cross(ba.pointToVector(), cb.pointToVector(), normal);
                     //조치가 필요
                 }
-                System.out.println("c41");
                 makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
                 return newc;
 
@@ -569,8 +560,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
                 if(vertices[offset + 2] != -1) {
                     makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
                 }
-                System.out.println("c42");
-                System.out.println(aindex + " " + cindex + " " + (cindex + 1) + " " + (offset+9) + " " + points.size() + " " + vertices.length);
+//                System.out.println(aindex + " " + cindex + " " + (cindex + 1) + " " + (offset+9) + " " + points.size() + " " + vertices.length);
 
                 makeTriangles(vertices, offset + 9, aindex, cindex, cindex + 1, points);
                 return cindex + 1;
@@ -580,7 +570,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             if(vertices[offset + 2] != -1) {
                 makeTriangleThreePoints(a.p, b.p, c.p, vertices, offset);
             }
-            System.out.println("c43");
 
             makeTriangles(vertices, offset + 9, bindex, cindex, cindex + 1, points);
             return cindex + 1;
@@ -624,9 +613,19 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
             square.makeShader();
             makeModelByImageFile(square, imagefilename);
 //            System.out.println(imagefilename);
+            float ratio = (float)mWidth/mHeight;
             Matrix.setIdentityM(mTempMatrix, 0);
-            Matrix.translateM(mTempMatrix, 0 , Float.parseFloat(arr[0]), Float.parseFloat(arr[1]),0.0f);
-            Matrix.scaleM(mTempMatrix, 0, Float.parseFloat(arr[2]), Float.parseFloat(arr[3]), 0.0f);
+            float[] transMatrix = new float[16];
+            float[] scaleMatrix = new float[16];
+
+            Matrix.translateM(mTempMatrix, 0 , Float.parseFloat(arr[0]), Float.parseFloat(arr[1])/ratio,0.0f);
+            System.arraycopy(mTempMatrix, 0, transMatrix, 0 , 16);
+            Matrix.setIdentityM(mTempMatrix, 0);
+
+            Matrix.scaleM(mTempMatrix, 0, Float.parseFloat(arr[2]), Float.parseFloat(arr[3]), 1.0f);
+            System.arraycopy(mTempMatrix, 0 , scaleMatrix, 0 , 16);
+            Matrix.multiplyMM(mTempMatrix, 0, transMatrix, 0 , scaleMatrix, 0);
+//            Matrix.multiplyMM(mTempMatrix, 0, scaleMatrix, 0 , transMatrix, 0);
             square.setMatrix(mTempMatrix);
             mModels.add(square);
         }

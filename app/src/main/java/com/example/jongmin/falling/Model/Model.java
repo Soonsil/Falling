@@ -39,6 +39,7 @@ public class Model {
     protected float color[] = new float[]{0.0f, 1.0f, 0.0f};
     protected float vertices[];
     protected float normals[];
+    protected float border[][];
 
     protected float modelMatrix[] = new float[16];
     protected float normalMatrix[] = new float[16];
@@ -73,7 +74,6 @@ public class Model {
         }
     }
 
-
     public void setMatrix(float[] mat){
         System.arraycopy(mat, 0, modelMatrix, 0, 16);
     }
@@ -91,6 +91,10 @@ public class Model {
         this.color[0] = color[0];
         this.color[1] = color[1];
         this.color[2] = color[2];
+    }
+
+    public void setBorder(float[][] border){
+        this.border = border;
     }
 
     public void make(){
@@ -170,9 +174,6 @@ public class Model {
                 mPositionHandle, COORDS_PER_VERTEX,
                 GLES20.GL_FLOAT, false,
                 VERTEX_STRIDE, mVertexBuffer);
-
-
-
         // Draw the cube
         GLES20.glDrawArrays(drawtype, 0, vertices.length / 3);
 
@@ -181,5 +182,19 @@ public class Model {
             GLES20.glDisableVertexAttribArray(mNormalHandle);
         }
 
+    }
+
+    public float[][] getBorder(){
+        float[][] matborder = new float[border.length][2];
+
+        for(int i=0; i<border.length; i++){
+            float[] point = new float[]{border[i][0], border[i][1], 0.0f, 1.0f};
+            float[] matpoint = new float[4];
+            Matrix.multiplyMV(matpoint, 0, modelMatrix, 0, point, 0);
+            matborder[i][0] = matpoint[0];
+            matborder[i][1] = matpoint[1];
+        }
+
+        return matborder;
     }
 }
