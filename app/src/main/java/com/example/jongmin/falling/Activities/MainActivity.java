@@ -2,6 +2,7 @@ package com.example.jongmin.falling.Activities;
 
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
@@ -10,7 +11,7 @@ import com.example.jongmin.falling.R;
 import com.example.jongmin.falling.Util.BackPressHandler;
 import com.example.jongmin.falling.View.MyGLSurfaceView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity {
     private BackPressHandler mBackPressHandler;
 
     private MyGLSurfaceView mView;
@@ -20,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTextView = (TextView) findViewById(R.id.TimeText);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // 세로 화면으로 고정할 경우
+//        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // 세로 화면으로 고정할 경우
 
 //        setContentView(R.layout.activity_main);
 //        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -65,11 +66,13 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onPause() {
         super.onPause();
+
+
         // The following call pauses the rendering thread.
         // If your OpenGL application is memory intensive,
         // you should consider de-allocating objects that
         // consume significant memory here.
-        mView.onPause();
+//        mView.onPause();
     }
 
     @Override
@@ -78,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         // The following call resumes a paused rendering thread.
         // If you de-allocated graphic objects for onPause()
         // this is a good place to re-allocate them.
-        mView.onResume();
+//        mView.onResume();
     }
 
 
