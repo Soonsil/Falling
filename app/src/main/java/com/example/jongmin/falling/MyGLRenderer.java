@@ -291,23 +291,28 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         m.makeShader();
         float[] vertices = new float[GameEnv.points.size() * 3];
         float[] normals = new float[GameEnv.points.size() * 3];
-
+        float[][] borders = new float[GameEnv.points.size()][2];
         int idx = 0;
         float ratio = (float) mWidth/mHeight;
+
         while (idx != GameEnv.points.size()){
-            vertices[idx * 3] = ((GameEnv.points.get(idx).x/mWidth) * 2.0f - 1.0f);
-            vertices[idx * 3 + 1] = -((GameEnv.points.get(idx).y/mHeight) * 2.0f - 1.0f)/ratio;
+            Point p = GameEnv.points.get(idx);
+            vertices[idx * 3] = (p.x/mWidth) * 2.0f - 1.0f;
+            vertices[idx * 3 + 1] = -((p.y/mHeight) * 2.0f - 1.0f)/ratio;
             vertices[idx * 3 + 2] = 0.0f;
             //System.out.println(points.get(idx).x/width + " " + points.get(idx).y/height);
 //            System.out.println((idx * 3 + 2)+ " " + vertices.length);
             normals[idx * 3] = 0.0f;
             normals[idx * 3 + 1] = 0.0f;
             normals[idx * 3 + 2] = 0.0f;
+            borders[idx][0] = vertices[idx * 3];
+            borders[idx][1] = vertices[idx * 3 + 1];
             idx++;
         }
 
         m.setVertices(vertices);
         m.setNormals(normals);
+        m.setBorder(borders);
         m.setDrawType(GLES20.GL_LINE_STRIP);
         m.setColor(new float[]{1.0f, 0.0f, 0.0f});
         m.makeBuffer();
